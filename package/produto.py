@@ -6,8 +6,7 @@ class Produto:
         # validação do nome
         if not isinstance(nome, str) or not nome.strip():
             raise ValueError("Nome do produto inválido. Deve ser uma string não vazia.")
-        if not all(c.isalpha() or c.isspace() for c in nome.replace(" ", "")):
-            raise ValueError(f"Nome do produto inválido: '{nome}'. Deve conter apenas letras e espaços.")
+        
         # Validação do preco_por_metro
         if not isinstance(preco_por_metro, (int, float)):
             raise TypeError("Preço por metro deve ser um número.")
@@ -65,5 +64,6 @@ class Brita(Produto):
         if tamanho not in self.tamanhos_válidos:
             raise ValueError(f"Tamanho inválido: '{tamanho}'. Use 0, 1 ou 0.75 para 3/4")
         
-        super().__init__(f"Brita", self.preco_fixo)
+        nome = f"Brita {tamanho}" 
+        super().__init__(nome, self.preco_fixo)
         self.tamanho = tamanho

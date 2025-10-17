@@ -44,7 +44,7 @@ class MenuSistema:
         print(f"{titulo:^60}")
         print("=" * 60)
         print()
-
+    
     def menu_principal(self):
         while True:
             self.exibir_cabecalho("SISTEMA DE PEDIDOS - CONSTRUÇÃO")
