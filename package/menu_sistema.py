@@ -47,7 +47,7 @@ class MenuSistema:
     
     def menu_principal(self):
         while True:
-            self.exibir_cabecalho("SISTEMA DE PEDIDOS - CONSTRUÇÃO")
+            self.exibir_cabecalho("SISTEMA DE VENDAS - REGISTROS")
             print("1. Cadastrar Cliente")
             print("2. Criar Novo Pedido")
             print("3. Gerenciar Pedido Aberto")
