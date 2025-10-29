@@ -1,0 +1,46 @@
+{
+    "clientes": [
+        {
+            "nome": "Luana Barbosa Souza",
+            "telefone": "(77) 999239319",
+            "endereco": "Setor Central- gama df"
+        }
+    ],
+    "pedidos": [],
+    "produtos": [],
+    "pedidos_fechados": [
+        {
+            "id_pedido": 1,
+            "cliente": {
+                "nome": "Luana Barbosa Souza",
+                "telefone": "(77) 999239319",
+                "endereco": "Setor Central- gama df"
+            },
+            "data_hora": "29/10/2025 15:57:09",
+            "status": "Fechado",
+            "itens": [
+                {
+                    "produto": {
+                        "id_produto": 1,
+                        "nome": "Areia Fina",
+                        "preco_por_metro": 110,
+                        "tipo_classe": "Areia",
+                        "tipo": "Fina"
+                    },
+                    "quantidade": 20.0
+                },
+                {
+                    "produto": {
+                        "id_produto": 7,
+                        "nome": "Brita 1",
+                        "preco_por_metro": 200,
+                        "tipo_classe": "Brita",
+                        "tamanho": 1
+                    },
+                    "quantidade": 4.0
+                }
+            ],
+            "valor_total": 3000.0
+        }
+    ]
+}

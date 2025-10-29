@@ -15,6 +15,23 @@ class ItemPedido:
         self.produto = produto
         self.quantidade = quantidade
 
+    def to_dict(self):
+            return {
+            # Serializa o produto associado (chamando o to_dict do Produto)
+            "produto": self.produto.to_dict(), 
+            "quantidade": self.quantidade
+        }
+
+    @classmethod
+    def from_dict(cls, dados: dict):
+        # Cria um objeto ItemPedido a partir de um dicionário (JSON)
+        # Chama Produto.from_dict para recriar o objeto Produto (ou subclasse)
+        produto_recriado = Produto.from_dict(dados['produto']) 
+        
+        return cls(
+            produto=produto_recriado,
+            quantidade=dados['quantidade']
+        )
 
     def calcular_subtotal(self):
 

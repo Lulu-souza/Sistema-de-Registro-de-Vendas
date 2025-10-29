@@ -4,9 +4,12 @@ from pedido import Pedido
 from item_pedido import ItemPedido
 import os
 import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from banco_dados import gerenciador
 
 class MenuSistema:
     def __init__(self):
+        
         
         self.Cliente = Cliente
         self.Produto = Produto
@@ -15,21 +18,32 @@ class MenuSistema:
         self.Brita = Brita
         self.Pedido = Pedido
         self.ItemPedido = ItemPedido
+
+        dados_carregados = gerenciador.carregar_dados()
+
+        # 1. Carregar Clientes
+        self.clientes_cadastrados = [
+            self.Cliente.from_dict(c_dict) for c_dict in dados_carregados['clientes']
+        ]
         
-        self.clientes_cadastrados = []
-        self.pedidos_abertos = []
-        self.pedidos_fechados = []
+        # 2. Carregar Pedidos Fechados
+        self.pedidos_fechados = [
+            self.Pedido.from_dict(p_dict) for p_dict in dados_carregados['pedidos_fechados']
+        ]
         
-        # Produtos pré-cadastrados conforme suas classes
+        self.pedidos_abertos = [] # Pedidos abertos não são salvos, são criados na sessão
+
+        
+        # Produtos pré-cadastrados conforme as classes
         self.produtos_disponiveis = [
-            Areia("Fina"),
-            Areia("Media"), 
-            Areia("Grossa"),
-            Barro("Vermelho"),
-            Barro("Branco"),
-            Brita(0),
-            Brita(1),
-            Brita(0.75)
+            self.Areia("Fina"),
+            self.Areia("Media"), 
+            self.Areia("Grossa"),
+            self.Barro("Vermelho"),
+            self.Barro("Branco"),
+            self.Brita(0),
+            self.Brita(1),
+            self.Brita(0.75)
         ]
 
     def limpar_tela(self):
@@ -92,6 +106,8 @@ class MenuSistema:
             cliente = self.Cliente(nome, telefone, endereco)
             self.clientes_cadastrados.append(cliente)
             print(f"\n✓ Cliente {nome} cadastrado com sucesso!")
+
+            self.salvar_estado_clientes()
             
         except ValueError as e:
             print(f"\n✗ Erro ao cadastrar cliente: {e}")
@@ -337,6 +353,8 @@ class MenuSistema:
                     pedido.fechar_pedido()
                     self.pedidos_abertos.remove(pedido)
                     self.pedidos_fechados.append(pedido)
+
+                    self.salvar_estado_pedidos() # lógica de salvamento 
                     
                     # Exibir resumo final
                     print("\n" + "="*50)
@@ -368,6 +386,33 @@ class MenuSistema:
                 print("-" * 50)
         
         self.aguardar_enter()
+
+
+    def salvar_estado_clientes(self):
+    # Salva a lista de clientes para o banco de dados.
+   
+    # 1. Carregar o banco atual para não apagar outras chaves (pedidos, produtos)
+        dados_atuais = gerenciador.carregar_dados()
+
+    # 2. Serializar a lista de objetos Cliente para uma lista de dicionários
+        clientes_dicts = [c.to_dict() for c in self.clientes_cadastrados]
+
+    # 3. Atualizar e salvar
+        dados_atuais['clientes'] = clientes_dicts
+        gerenciador.salvar_dados(dados_atuais)
+
+    def salvar_estado_pedidos(self):
+    #Salva a lista de pedidos fechados para o banco de dados
+    
+    # 1. Carregar o banco atual para não apagar outras chaves (clientes, produtos)
+        dados_atuais = gerenciador.carregar_dados()
+
+    # 2. Serializar a lista de objetos Pedido para uma lista de dicionários
+        pedidos_dicts = [p.to_dict() for p in self.pedidos_fechados]
+
+    # 3. Atualizar e salvar
+        dados_atuais['pedidos_fechados'] = pedidos_dicts
+        gerenciador.salvar_dados(dados_atuais)
 
     def sair_sistema(self):
         self.exibir_cabecalho("SAIR DO SISTEMA")

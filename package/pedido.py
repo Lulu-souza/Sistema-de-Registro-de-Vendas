@@ -7,18 +7,60 @@ from cliente import Cliente
 class Pedido:
     proximo_id = 1
 
-    def __init__(self, cliente: Cliente):
+    def __init__(self, cliente: Cliente, id_pedido: int = None,data_hora: str = None, status: str = "Aberto"):
         # --- Validação do cliente ---
         if not isinstance(cliente, Cliente):
             raise TypeError("O cliente deve ser uma instância da classe Cliente.")
         
-        self.id_pedido = Pedido.proximo_id
-        Pedido.proximo_id += 1
+        # Permite passar ID e outros dados ao carregar (desserializar)
+        if id_pedido is not None:
+            self.id_pedido = id_pedido
+        else:
+            self.id_pedido = Pedido.proximo_id
+            Pedido.proximo_id += 1
         
         self.cliente = cliente
-        self.data_hora = time.strftime("%d/%m/%Y %H:%M:%S")
+        self.data_hora = data_hora if data_hora else time.strftime("%d/%m/%Y %H:%M:%S")
         self.itens: List[ItemPedido] = []
         self.status = "Aberto"
+
+    def to_dict(self):
+            return {
+            "id_pedido": self.id_pedido,
+            # Serializa o Cliente associado
+            "cliente": self.cliente.to_dict(), 
+            "data_hora": self.data_hora,
+            "status": self.status,
+            # Serializa a lista de ItemPedidos (chave para ItemPedido.to_dict())
+            "itens": [item.to_dict() for item in self.itens],
+            "valor_total": self.calcular_valor_total() 
+        }
+    
+    @classmethod
+    def from_dict(cls, dados: dict):
+        # Cria um objeto Pedido a partir de um dicionário (JSON)
+        
+        # 1. Garante que o proximo_id seja mantido atualizado
+        if dados['id_pedido'] >= cls.proximo_id:
+            cls.proximo_id = dados['id_pedido'] + 1
+            
+        # 2. Recria o objeto Cliente
+        cliente_recriado = Cliente.from_dict(dados['cliente']) 
+        
+        # 3. Cria o objeto Pedido
+        pedido = cls(
+            cliente=cliente_recriado,
+            id_pedido=dados['id_pedido'],
+            data_hora=dados['data_hora'],
+            status=dados['status']
+        )
+        
+        # 4. Recria e adiciona os itens
+        for item_dict in dados['itens']:
+            item_recriado = ItemPedido.from_dict(item_dict)
+            pedido.itens.append(item_recriado)
+            
+        return pedido
 
     def adicionar_produto(self, produto: Produto, quantidade: float):
         # --- Validações ---

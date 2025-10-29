@@ -14,13 +14,28 @@ class Cliente:
         if not endereco or not endereco.strip():
             raise ValueError("Endereço inválido. O campo não pode estar vazio.")
         
-
-
         # Atribuição se a validação passar
         self.nome = nome.strip()
         self.telefone = telefone.strip()
         self.endereco = endereco.strip() # Endereço geralmente aceita qualquer string, então a validação é mínima
-
+        
+    def to_dict(self):
+        return {
+            
+            "nome": self.nome,
+            "telefone": self.telefone,
+            "endereco": self.endereco
+        }
+        
+    @classmethod
+    def from_dict(cls, dados: dict):
+        # Cria um objeto Cliente a partir de um dicionário (JSON).
+        
+        return cls(
+            nome=dados['nome'],
+            telefone=dados['telefone'],
+            endereco=dados['endereco'],
+        )
     
 
     def __str__(self):

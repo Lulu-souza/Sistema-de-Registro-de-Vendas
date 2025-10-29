@@ -18,6 +18,41 @@ class Produto:
         self.nome = nome.strip()
         self.preco_por_metro = preco_por_metro
 
+    def to_dict(self):
+            #Converter o objeto para um dicionario para ser usado no JSON
+            return {
+            "id_produto": self.id_produto,
+            "nome": self.nome,
+            "preco_por_metro": self.preco_por_metro,
+            # Chave adicionada para identificar o tipo real do produto
+            "tipo_classe": self.__class__.__name__
+        }
+
+    @classmethod
+    def from_dict(cls, dados: dict):
+        # Cria a subclasse correta de Produto a partir de um dicionário (JSON)
+        
+        # Garante que o proximo_id seja mantido atualizado
+        if dados['id_produto'] >= cls.proximo_id:
+            cls.proximo_id = dados['id_produto'] + 1
+            
+        # 1. Identifica a classe correta
+        tipo_classe = dados.get("tipo_classe")
+        
+        if tipo_classe == "Areia":
+            return Areia.from_dict(dados)
+        elif tipo_classe == "Barro":
+            return Barro.from_dict(dados)
+        elif tipo_classe == "Brita":
+            return Brita.from_dict(dados)
+        else:
+            # Se for um Produto genérico (não subclasse) ou tipo desconhecido
+            return cls(
+                nome=dados['nome'],
+                preco_por_metro=dados['preco_por_metro'],
+                id_produto=dados['id_produto']
+            )
+        
     def calcular_preco_total(self, quantidade: float):
         
         if not isinstance(quantidade, (int, float)):
@@ -42,6 +77,19 @@ class Areia(Produto):
         super().__init__(f"Areia {tipo}", self.preco_fixo) # vai acessar o preço fixo 
         self.tipo = tipo
 
+
+    def to_dict(self):
+        dados = super().to_dict() # Pega os dados da classe Produto
+        dados["tipo"] = self.tipo
+        return dados
+    
+    @classmethod
+    def from_dict(cls, dados: dict):
+        # A subclasse Brita precisa apenas do atributo específico 'tamanho' para ser recriada
+        produto = cls(tipo=dados['tipo'])
+        produto.id_produto = dados['id_produto'] # Redefine o ID com o valor do JSON
+        return produto
+
 class Barro(Produto):
     preco_fixo = 50
     cores_validas = {'Vermelho', 'Branco'}
@@ -52,6 +100,17 @@ class Barro(Produto):
         
         super().__init__(f"Barro {cor}", self.preco_fixo)
         self.cor = cor
+
+    def to_dict(self):
+        dados = super().to_dict()
+        dados["cor"] = self.cor
+        return dados
+    
+    @classmethod
+    def from_dict(cls, dados: dict):
+        produto = cls(cor=dados['cor'])
+        produto.id_produto = dados['id_produto']
+        return produto
 
 class Brita(Produto):
     preco_fixo = 200
@@ -67,3 +126,14 @@ class Brita(Produto):
         nome = f"Brita {tamanho}" 
         super().__init__(nome, self.preco_fixo)
         self.tamanho = tamanho
+
+    def to_dict(self):
+        dados = super().to_dict()
+        dados["tamanho"] = self.tamanho
+        return dados
+    
+    @classmethod
+    def from_dict(cls, dados: dict):
+        produto = cls(tamanho=dados['tamanho'])
+        produto.id_produto = dados['id_produto']
+        return produto
